@@ -37,8 +37,22 @@ app.get('/home', (_, res) => {
 })
 
 app.get('/available', (_, res) => {
-  BooksStatus.show_all_books_status(res);
-})
+  BooksStatus.show_all_books_status()
+    .then(bookInstances => {
+      if (!bookInstances) {
+        throw new Error('No available books found'); 
+      }
+      const availableBooks = bookInstances.map(bi => ({
+        title: bi.book.title, 
+        status: bi.status
+      }));
+      res.json(availableBooks); 
+    })
+    .catch(err => {
+      console.error(err); 
+      res.status(500).send('Error retrieving available books'); 
+    });
+});
 
 app.get('/books', (_, res) => {
   Books.show_books()
